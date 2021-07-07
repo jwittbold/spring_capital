@@ -10,7 +10,7 @@ import logging
 
 def extractor():
     """Builds SparkSession, authenticates Azure Storage credentials, 
-    reads from blob storage, and writes parquet files to partitioned Blob storage. 
+    reads from blob storage, and writes parquet files to Blob storage as partitions. 
     """
 
     # build spark session 
