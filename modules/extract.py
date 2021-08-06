@@ -9,7 +9,8 @@ import logging
 
 
 def extractor():
-    """Builds SparkSession, authenticates Azure Storage credentials, 
+    """
+    Builds SparkSession, authenticates Azure Storage credentials, 
     reads from blob storage, and writes parquet files to Blob storage as partitions. 
     """
 
@@ -32,7 +33,7 @@ def extractor():
                
     except Exception as e:
         print(f'Encounterd exception while connecting to Azure Storage:\n{e}')
-
+        logging.exception(f'Encounterd exception while connecting to Azure Storage:\n{e}')
 
     # extract and transform CSV data
     try:
@@ -44,15 +45,15 @@ def extractor():
         # parse all lines in RDD with csv_parser
         parsed = raw.map(lambda line: parse_csv(line))
         # create dataframe from RDD w/ custom schema applied
-        data = spark.createDataFrame(parsed, schema=common_event_schema)
-        data.show()
-        print(f'{data.count()} records in DataFrame')
-        data.printSchema()
+        data_csv = spark.createDataFrame(parsed, schema=common_event_schema)
+        data_csv.show()
+        print(f'{data_csv.count()} records in DataFrame')
+        data_csv.printSchema()
         # data.show(data.count(), False)
         
     except Exception as e:
         print(f'Encountered exception during CSV extraction:\n{e}')
-
+        logging.exception(f'Encountered exception during CSV extraction:\n{e}')
 
     # extract and transform JSON data
     try:
@@ -64,26 +65,29 @@ def extractor():
         # parse all lines in RDD with csv_parser
         parsed = raw.map(lambda line: parse_json(line))
         # create dataframe from RDD w/ custom schema applied
-        data = spark.createDataFrame(parsed, schema=common_event_schema)
-        data.show()
-        print(f'{data.count()} records in DataFrame')
+        data_json = spark.createDataFrame(parsed, schema=common_event_schema)
+        data_json.show()
+        print(f'{data_json.count()} records in DataFrame')
         # data.show(data.count(), False)
-        data.printSchema()
+        data_json.printSchema()
                 
     except Exception as e:
         print(f'Encountered exception during JSON extraction:\n{e}')
-
+        logging.exception(f'Encountered exception during JSON extraction:\n{e}')
 
     # write transformed files out to 'B', 'T', or 'Q' partitions
     try:
         output_dir = 'wasbs://stockdata@springcapitalstorage.blob.core.windows.net/output_dir'
-        data.write.partitionBy('partition').mode('overwrite').parquet(output_dir)
+        
+        # combine csv and json DataFrames to be written out in one pass
+        combined_data = data_csv.union(data_json)
+        combined_data.write.partitionBy('partition').mode('overwrite').parquet(output_dir)
 
         print(f'====== Parquet files successfully written to partitions in: {output_dir} ======')
 
     except Exception as e:
         print(f'Encountered exception while writing parquet files to blob:\n{e}')
-
+        logging.exception(f'Encountered exception while writing parquet files to blob:\n{e}')
 
 if __name__ == '__main__':
 
