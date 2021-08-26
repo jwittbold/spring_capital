@@ -33,7 +33,7 @@ bad_records = spark.read.parquet(f'{blob_container}/output_dir/partition=B')
 
 
 ########################################################################
-####################        COMMON DATAFRAMES        ###################       
+####################        COMMON DATAFRAMES        ###################
 ########################################################################
 
 # select only necessary columns for trade records

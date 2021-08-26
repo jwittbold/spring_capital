@@ -1,0 +1,18 @@
+# global and user defined variables
+
+[AZURE]
+PREFIX = 'wasbs://'
+CONTAINER = 'stockdata'
+STORAGE_ACC = 'springcapitalstorage'
+SUFFIX = '.blob.core.windows.net'
+
+# TO DO: refactor extract.py to use config variables
+
+
+[EOD]
+QUOTE = '/quote/trade_dt='
+TRADE = '/trade/trade_dt='
+ANALYTIC = '/analytic'
+REPORT = '/date='
+LATER_DATE = '2020-08-06'
+EARLIER_DATE = '2020-08-05'
