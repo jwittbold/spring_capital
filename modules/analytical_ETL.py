@@ -1,10 +1,6 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.window import Window
-from pyspark.sql import functions as F
-from pyspark.sql.functions import col
-from datetime import date
-from pyspark.sql.types import StringType
 from toml_config import config
+import logging
 
 
 #######################################################################
