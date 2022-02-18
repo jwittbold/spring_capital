@@ -1,8 +1,16 @@
+import sys
 from pyspark.sql import SparkSession
 from pyspark.sql.window import Window
 from pyspark.sql import functions as F
 from datetime import date
 from pyspark.sql.types import StringType
+
+from toml_config import config
+from job_tracker import Tracker
+
+
+# instantiate Tracker 
+tracker = Tracker(config)
 
 
 ########################################################################
@@ -118,10 +126,18 @@ if __name__ == '__main__':
                     print(f'Writing ** TRADES ** for {trade_dt} to blob storage...')
                     trade_dt_partitioned.write.mode('append').parquet(output_dir)
                     print(f'Successfully wrote ** TRADES ** for {trade_dt} to {output_dir}')
+
+                # if execution successful, update job status tracker table for each record date to 'succeeded'
+                tracker.update_job_status(target='trades', dates=date_pool, status='succeeded')
         
         except Exception as e:
             logging.Exception(f'Encountered exception while attempting to write ** TRADE ** DataFrames to blob storage:\n{e}')
             print(f'Encountered exception while attempting to write ** TRADE ** DataFrames to blob storage:\n{e}')
+            
+            date_pool = EOD_Loader(df).extract_dates(trade_df)
+
+            # if execution failed, update job status tracker table for each record date to 'failed'
+            tracker.update_job_status(target='trades', dates=date_pool, status='failed')
 
         try:
             if df == quote_df:
@@ -142,7 +158,18 @@ if __name__ == '__main__':
                     print(f'Writing ** QUOTES ** for {trade_dt} to blob storage...')
                     trade_dt_partitioned.write.mode('append').parquet(output_dir)
                     print(f'Successfully wrote ** QUOTES ** for {trade_dt} to {output_dir}')
+
+                    
+                # if execution successful, update job status tracker table for each record date to 'succeeded'
+                tracker.update_job_status(target='quotes', dates=date_pool, status='succeeded')
+
         
         except Exception as e:
             logging.Exception(f'Encountered exception while attempting to write ** QUOTE ** DataFrames to blob storage:\n{e}')
             print(f'Encountered exception while attempting to write ** QUOTE ** DataFrames to blob storage:\n{e}')
+            
+            date_pool = EOD_Loader(df).extract_dates(quote_df)
+
+            # if execution failed, update job status tracker table for each record date to 'failed'
+            tracker.update_job_status(target='quotes', dates=date_pool, status='failed')
+            

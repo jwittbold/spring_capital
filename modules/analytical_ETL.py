@@ -1,6 +1,11 @@
 from pyspark.sql import SparkSession
-from toml_config import config
 import logging
+
+from toml_config import config
+from job_tracker import Tracker
+
+# intantiate Tracker
+tracker = Tracker(config)
 
 
 #######################################################################
@@ -254,7 +259,6 @@ class EOD_Analytics:
         # extract dates from final dataframe, write dataframes to blob storage
         # partitioned by values within trade_dt column
         try:
-
             date_pool = EOD_Analytics(config).extract_dates(quote_final)
 
             for trade_dt in date_pool:
@@ -269,11 +273,20 @@ class EOD_Analytics:
                 quote_final_partitioned.write.mode('overwrite').parquet(output_dir)
                 print(f'Successfully wrote EOD REPORT for ** {trade_dt} ** to {output_dir}')
 
+            # if execution successful, update job status tracker table for each record date to 'succeeded'
+            tracker.update_job_status(target='report', dates=date_pool, status='succeeded')
+
         except Exception as e:
             logging.Exception(f'Encountered exception while attempting to write ** {trade_dt} EOD REPORT ** DataFrame to blob storage:\n{e}')
             print(f'Encountered exception while attempting to write ** {trade_dt} EOD REPORT ** DataFrames to blob storage:\n{e}')
+
+            date_pool = EOD_Analytics(config).extract_dates(quote_final)
+
+            # if execution failed, update job status tracker table for each record date to 'failed'
+            tracker.update_job_status(target='report', dates=date_pool, status='failed')
 
 
 if __name__ == '__main__':
 
     EOD_Analytics(config).analytics(trade_all_df, trade_earlier_df, quote_all_df)
+    

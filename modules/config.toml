@@ -6,8 +6,7 @@ CONTAINER = 'stockdata'
 STORAGE_ACC = 'springcapitalstorage'
 SUFFIX = '.blob.core.windows.net'
 
-# TO DO: refactor extract.py to use config variables
-
+# TODO: refactor extract.py to use config variables
 
 [EOD]
 QUOTE = '/quote/trade_dt='
@@ -16,3 +15,15 @@ ANALYTIC = '/analytic'
 REPORT = '/date='
 LATER_DATE = '2020-08-06'
 EARLIER_DATE = '2020-08-05'
+
+
+# PostgreSQL params are case sensitive 
+[DB_SETTINGS]
+drivername = 'postgresql'   # SQLAlchemy 1.4.x uses 'postgresql' rather than 'postgres' for drivername 
+username = 'postgres'   
+password = 'password'   
+host = '127.0.0.1'      
+port = 5432             
+
+[ETL_TRACKER]
+TRACKING_TABLE = 'pipeline_tracker'
