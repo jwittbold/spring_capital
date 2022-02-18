@@ -2,7 +2,7 @@
 
 ## Analytical ETL
 
-### Step 3
+### Step 1
 • Moving Avg
 ![step_1_moving_avg](/screenshots/step_1_moving_avg.png)
 
