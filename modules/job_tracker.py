@@ -98,8 +98,11 @@ class Tracker:
         """
         Inserts job status to tracker_table for each job run.
         date param is provided from other variables within module calling update_job_status method.
-        :param: date
+        :param: dates
         :type date: str
+        :param target: additional info optionally provided when calling update_job_status method within module.
+                        used for supplying additional info within job tracker name. Can be omitted as by passing empty str: ''
+        :type target: str
         :param: status
         :type status: str
         """
@@ -108,6 +111,9 @@ class Tracker:
         session = self.session
         tracker_table = self.tracker_table
         conn = self.engine.connect()
+
+        # all of the modules contain a date variable list, so that is used to provide the date portion.
+        # target param is additional info to help identify which spark job is running. Can be omitted as an empty str: ''
         for date in dates:
             job_id = f'{self.assign_job_id()}_{target}_{date}'
 
