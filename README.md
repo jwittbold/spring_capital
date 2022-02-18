@@ -12,7 +12,7 @@
 
 
 ### Step 2
-• Previous day closing prices
+• Previous day closing prices  
 ![step_2_earlier_day_closing_pr](/screenshots/step_2_earlier_day_closing_pr.png)
 
 
